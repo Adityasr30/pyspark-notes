@@ -351,3 +351,252 @@ Key features of ORC include:
 - Lightweight indexes: ORC supports lightweight indexes, which help accelerate the process of finding relevant data during query execution.
 
 In summary, each of these formats has its own set of strengths, and the choice between Parquet, Avro, and ORC will depend on factors like the specific use case, data size, query patterns, and the tools or frameworks you are using in your big data processing pipeline.
+
+
+## Why is MapReduce slow?
+Before Apache Spark, MapReduce already existed. But there are multiple problems with it. 
+
+### Problem 1
+The main problem is that it writes every stage into HDFS storage which makes it super slow.  
+
+Example:  
+
+Step 1:
+<img width="574" height="347" alt="image" src="https://github.com/user-attachments/assets/5bf70c33-5294-4941-aab1-6cb962904ded" />
+
+Step 2:
+<img width="620" height="327" alt="image" src="https://github.com/user-attachments/assets/1f2c0998-e83b-4731-b7b0-d07caecc571f" />
+
+### Problem 2
+- Rigid programming model
+- Fixed steps - Map and Reduce
+- If your tasks require various tasks like filter, joins, aggregations, we'll need to break them into multiple Map Reduce steps.
+
+## How Spark resolved these problems?
+
+1. In-memory computation (No writing of immediate steps into HDFS)
+2. Directed Acyclic Graph (Resolves the problem of rigid programming model)
+	- Divides into jobs and stages
+
+<img width="792" height="462" alt="image" src="https://github.com/user-attachments/assets/e0737a56-0b2f-4dd9-8bcf-03b8906201d8" />
+
+## Spark Architecture
+- The cluster manager resides on the driver or master node.
+- Widely used cluster managers are YARN and Kubernetes.
+- In order to start the spark application, user needs to run a spark submit command along with the code and configurations.
+- This spark submit request will go the the cluster manager.
+- The cluster manager will first create an application master container. It decides to create it on which worker node.
+- A container is an isolated environment within a node with fixed amount of CPUs and RAM. It is not allowed to use resources beyond what is allocated to it.
+- The application master container will start an application driver. Application driver is a JVM process. It's job is to execute the main method of the spark application code.
+<img width="648" height="475" alt="image" src="https://github.com/user-attachments/assets/99535166-642d-47f3-8f27-77fcb4b01b76" />
+
+- JVM doesn't understand Python or PySpark. So a PySpark driver will spin up. The PySpark driver's main method will call the application driver.
+- Spark core is written in Scala. To make it available for Python developers, it has a JAVA wrapper on top of it and in turn it has a python wrapper on top of it.
+<img width="274" height="108" alt="image" src="https://github.com/user-attachments/assets/73788c62-33a6-4742-a39d-69bca69de555" />
+
+- The application driver looks at the request and it goes the cluster manager to request for resources.
+- Cluster manager gives the resources. For example, the request is for 3 executors, the cluster manager will randomly pick 3 workers and create executor containers.
+- After allocation, it hands over the details to the application driver. The cluster manager tells the location of the executors for example, worker node 1, 2 and 4.
+- Application driver then schedules the tasks. The executors execute the tasks and report the results back to the driver.
+- If we create an UDF, then each executor container may also spin up a python process because UDF are created by user and not contained by default in spark.  
+
+<img width="1323" height="777" alt="image" src="https://github.com/user-attachments/assets/5ca68a66-41cb-4319-bdc7-646831b0621e" />
+
+<img width="1295" height="967" alt="image" src="https://github.com/user-attachments/assets/e81ac5fd-b456-482b-8d1f-c1d3e07acb08" />
+
+### Deployment modes
+- When the application driver runs on one of the worker node in the cluster, it is called as cluster mode.
+- When spark submit runs on user machine, then it is called as client mode.
+
+## Transformations
+- Transformations are operations that produce a new dataset from an existing one.
+- They are lazy operations, which means they are not executed immediately until an action is called.
+- Select, filter
+
+**Narrow Transformations**
+- No shuffles are involved
+
+**Wide Transformations**
+- Shuffles are involved
+- Data is redistributed across nodes
+
+## Actions
+- An action is an operation that triggers actual computation.
+- Collect, show, count, write
+
+## Plan
+1. Unresolved logical plan
+- This is the initial plan created from the query.
+- Spark only understands the structure of the query here, but it has not yet verified anything.
+- Spark checks later for:
+	- Does the table exist?
+	- Do the selected columns exist?
+	- Are functions valid?
+	- Are data types compatible?
+- Example:
+SELECT name, age  
+FROM employees  
+WHERE age > 30  
+
+- At this stage Spark just sees:
+	- Read table employees
+	- Select name, age
+	- Apply filter age > 30
+
+- But it has not validated whether:
+	- employees table exists
+	- name and age columns are present
+
+2. Logical plan
+- Now Spark uses the Catalyst Analyzer to validate the query.
+- Spark resolves:
+	- Table metadata
+	- Column references
+	- Data types
+	- Function names
+- If something is wrong:
+	- Spark throws errors like:
+		- Table not found
+		- Column not found
+- Output
+	- A fully validated logical representation of the query.
+
+3. Catalyst optimizer
+- Now Spark applies optimizations to improve performance.
+- This is handled by the Catalyst Optimizer.
+- Some important optimizations are:
+- Filter Pushdown
+	- Move filters closer to the data source.
+	- Instead of:
+ 		- Read all data → Filter later
+	- Spark tries:
+ 		- Filter while reading data
+   	- This reduces:
+   		- Disk I/O
+		- Network transfer
+   		- Memory usage
+- Projection Pushdown
+	- Read only required columns.
+ 	-  Instead of reading:
+  		- name, age, salary, department
+    -  Spark may read only:
+    	- name, age
+	- This reduces unnecessary data reading.
+- Other Optimizations
+	- Constant folding
+	- Predicate simplification
+	- Join reordering
+	- Partition pruning
+
+4. Physical plan
+- Spark now converts the optimized logical plan into multiple possible execution strategies.
+- Example:
+	- Broadcast Hash Join
+	- Sort Merge Join
+	- Shuffle Hash Joi
+- Spark evaluates these plans using:
+	- Statistics
+	- Cost model
+	- Data size estimates
+- Then Spark chooses the best physical plan.
+
+5. DAG scheduler
+- After finalizing the physical plan:
+- Spark converts it into:
+	- Jobs
+	- Stages
+	- Tasks
+- This forms a DAG (Directed Acyclic Graph).
+
+6. Final flow summary  
+User Query  
+   ↓  
+Unresolved Logical Plan  
+   ↓  
+Analyzed / Resolved Logical Plan  
+   ↓  
+Optimized Logical Plan  
+   ↓  
+Physical Plan  
+   ↓  
+DAG Scheduler  
+   ↓  
+Stages → Tasks  
+   ↓  
+Execution on Cluster  
+
+<img width="640" height="445" alt="image" src="https://github.com/user-attachments/assets/421cdd1f-ee1c-4a09-9cdb-60bbe474e1dc" />
+
+## Important concepts
+- **Job**
+- Created for every action like:
+	- show()
+	- count()
+	- collect()
+	- write()
+- **Stage**
+- A job is divided into stages based on shuffle boundaries.
+- Two types:
+	- ShuffleMapStage
+	- ResultStage
+- **Task**
+	- Each stage is divided into tasks.
+	- Usually:
+ 		- One partition = One task
+   - Tasks run in parallel on executors.
+
+## Spark code example
+<img width="1385" height="926" alt="image" src="https://github.com/user-attachments/assets/4a836a92-b31b-46ee-b8c8-4a535206ae20" />
+
+- If the code involves N shuffles/ wide transformations then there will be N+1 stages.
+
+## Spark Executor Memory
+<img width="1410" height="783" alt="image" src="https://github.com/user-attachments/assets/48480717-057c-460f-9e95-7838d2b055ef" />
+
+- It is divided into 3 main parts:
+	- On-heap memory
+ 	- Off-heap memory
+  	- Overhead
+
+- **On-heap memory**
+	- Main memory JVM interacts with
+ 	- Divided into 4 parts:
+  		- Execution memory:
+    		- This is where joins, shuffles, sorting etc are executed.
+      	- Storage memory:
+        	-  Cached objects, broadcast variables etc are stored here.
+      	- User memory:
+      		- User defined data structures, variables etc are stored here.
+      	 - Reserved memory:
+      	 	- 300 MB
+      	  	- Spark keeps it for it's internal use
+      	   		- Internal metadata, Memory tracking, Error handling, Internal objects
+	- Execution memory and storage memory are together called unified memory.
+ 		- This is because both of these can borrow memory from each other.
+   		- But priority is given to Execution memory
+		- Out of the total on-heap memory, 0.6 fraction is allocated for this unified memory.
+  		- Out of 0.6 fraction, 0.5 each fraction is allocated for each Execution and Storage memory.
+    	- Example:
+     		- executor-memory = 10 GB
+       			- Unified memory = 6 GB
+          			- Execution memory = 3 GB
+             		- Storage memory = 3 GB
+                 	- Reserved memory = 300 MB
+                  	- User memory = 4 GB - 300 MB = 3.8 GB
+
+- **Off-heap memory**
+	- It is disabled by default. Enabled using spark setting.
+ 	- Useful when processing large data.
+  	- Used mainly to reduce:
+  		- JVM Garbage Collection (GC)
+  	 	- Object overhead
+  	  	- Serialization costs
+	- GC becomes very expensive with huge datasets. Off-heap memory helps Spark bypass JVM limitations.
+ 	- Large heap = long garbage collection pauses. Off-heap avoids this problem.
+ 
+- **Overhead**
+	- Extra container/process memory required beyond JVM heap.
+ 	- Additional non-heap memory used for JVM overhead, Python processes, shuffle, networking, and native operations.
+
+### Spill
+- In Spark, spilling happens when execution memory used for operations like shuffle, sort, join, or aggregation becomes insufficient. Spark first tries to store intermediate data in heap execution memory and optionally off-heap memory (if enabled). When this memory is full, Spark writes the excess intermediate data to the executor node’s local disk, which is called spilling to disk. Overhead memory is not used for spilling; it is reserved for JVM/native overheads such as Python worker processes, thread stacks, networking, and internal executor operations.
