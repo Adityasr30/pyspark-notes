@@ -5,128 +5,128 @@
 - Powerful data processing and machine learning applications
 - Python + spark = PySpark
 
-## Who uses pyspark?
+## Who uses PySpark?
 Data science and machine learning community
 
-## When to use pandas and pyspark?
+## When to use Pandas and PySpark?
 - For smaller dataset --> Pandas (single node)
 - For large data --> Spark (distributed processing)
 
-## What are the features of pyspark?
+## What are the features of PySpark?
 - In-memory computation
 - Distributed processing 
-- Can be used with many cluster managers (Spark, Yarn, Mesos etc)
-- Fault tolerant
+- Can be used with many cluster managers (Spark, Yarn, Mesos, etc.)
+- Fault-tolerant
 - Immutable (RDDs are immutable)
 - Cache and persistent
 - Lazy evaluation
 - Supports ANSI SQL
 
 ## What is meant by in-memory computation?
-Spark brings data into the memory (Ram). As we know it takes less time to fetch and process data from the memory as it is fast.
+Spark brings data into the memory (RAM). As we know, it takes less time to fetch and process data from memory, as it is fast.
 
-## The data that needs to be processed is very huge and the memory is limited. So how spark is able to process this data in memory?
-- Data partitioning: splits data into chunks and process these chunks in distributed fashion across different machines in a cluster
+## The data that needs to be processed is very huge, and the memory is limited. So, how is Spark able to process this data in memory?
+- Data partitioning: Splits data into chunks and processes these chunks in a distributed fashion across different machines in a cluster.
 - Lazy evaluation: doesn't immediately execute operations. stores execution plan in a DAG.
-    DAG contains sequence of transformations. It gets executed once any action method is called.
+    DAG contains a sequence of transformations. It gets executed once any action method is called.
 - Data pipelining
-- Using serialization: apache parquet
-- Out of memory processing: in case, where data exceeds the memory, spark intelligently spills the data into the disks.
+- Using serialization: Apache Parquet
+- Out of memory processing: In cases where data exceeds the memory, Spark intelligently spills the data into the disks.
 
 ## What is DAG?
-- Directed acylic graph
-- Directed: graph is directed. operations are in a specific order/ sequence. Each operation depends upon the previos operation.
-- Acyclic: there are no loops or cycles in the sequence operations
+- Directed acyclic graph
+- Directed: Graph is directed. Operations are in a specific order/ sequence. Each operation depends upon the previous operation.
+- Acyclic: There are no loops or cycles in the sequence of operations.
 
 ## What is meant by serialization?
-- Serialization refers converting an object into byte stream.
-- Serialized objects occupies less space in the disk/memory.
-- They can be used to transfer data over a network or store in memory.
+- Serialization refers to converting an object into a byte stream.
+- Serialized objects occupy less space in the disk/memory.
+- They can be used to transfer data over a network or store it in memory.
 
-## What is apache parquet?
-- It is a storage file format
-- Columnar data structure: values of each column are stored together
-- Compression: it support compression algorithms like gzip, snappy and LZO.
+## What is Apache Parquet?
+- It is a storage file format.
+- Columnar data structure: Values of each column are stored together.
+- Compression: It supports compression algorithms like gzip, snappy, and LZO.
 - Schema evolution:
-    - Parquet supports schema evolution
-    - If the schema of data evolves over time, we do not require to process the data again, it adapts to the schema.
+    - Parquet supports schema evolution.
+    - If the schema of data evolves over time, we do not need to process the data again; it adapts to the schema.
 - Predicate pushdown:
-    - Parquet supports predicate pushdown
+    - Parquet supports predicate pushdown.
     - It pushes filtering operations down to the storage layer.
     - In other words, it filters out data before processing.
-    - It tries to keep filtering conditions (conditions in WHERE clause) close to the data.
+    - It tries to keep filtering conditions (conditions in the WHERE clause) close to the data.
     - Advantage:
-	 1. It allows parquet to skip reading rows or columns that do not satisfy the filter conditions
+	 1. It allows parquet to skip reading rows or columns that do not satisfy the filter conditions.
 	 2. Thus, improving query performance by reducing the amount of data that needs to be read from disk.
 - Not suitable for smaller data.
 
 ## What is column pruning?
 - Optimization technique
 - Identifies and eliminates unnecessary columns
-- Also called as column elimination/ column projection
+- Also called column elimination/ column projection
 
 ## What is meant by distributed processing?
 - Spark jobs are executed in a cluster
-- This cluster contains combination of many machines
-- The job is divided into chunks and each of them is executed on seperate machines
-- This kind of processing is called as distributed processing.
+- This cluster contains a combination of many machines
+- The job is divided into chunks, and each of them is executed on separate machines
+- This kind of processing is called distributed processing.
 
 ## What is a job?
-A job can mean a set of instructions/code (transformations) written in python/scala that needs to be executed.
+A job can mean a set of instructions/code (transformations) written in Python/Scala that needs to be executed.
 
 ## What is a cluster manager?
-- Responsible for managing available resources in a cluster
-- Manages the execution of tasks in a cluster of machines
-- Resources can be CPU, memory, storage and network
-- Also used to schedule jobs
-- Moniters health and status of the cluster, detects failures of nodes.
+- Responsible for managing available resources in a cluster.
+- Manages the execution of tasks in a cluster of machines.
+- Resources can be CPU, memory, storage, and network.
+- Also used to schedule jobs.
+- Monitors the health and status of the cluster, detects failures of nodes.
 - Reschedules tasks if failed.
-- Example: Mesos, kubernetes, Yarn
-- Apache Spark also has a standalone cluster manager
+- Example: Mesos, Kubernetes, Yarn
+- Apache Spark also has a standalone cluster manager.
 
 ## How spark provides fault tolerance?
 - By storing lineage, Spark can reconstruct lost data partitions by recomputing partitions.
-- Data replication: sparks replicate each partition on multiple nodes.
-- Task failure: if a task gets failed on a node, spark assigns the task to another worker node
-- Driver recovery: driver is the single point of failure in spark
-- Cluster managers: they have built in fault tolerance features.
+- Data replication: Sparks replicate each partition on multiple nodes.
+- Task failure: If a task fails on a node, Spark assigns the task to another worker node.
+- Driver recovery: driver is the single point of failure in Spark.
+- Cluster managers: they have built-in fault tolerance features.
 
 ## What is cache and persist?
-- Both are methods used to persist frequently accessed data on memory or disk, providing faster access.
-- Cache is used to persist data in memory. It can also be written as persist(StorageLevel.MEMORY_ONLY)
-- Persist allows to choose between many storage levels:
+- Both are methods used to persist frequently accessed data in memory or on disk, providing faster access.
+- Cache is used to persist data in memory. It can also be written as persist(StorageLevel.MEMORY_ONLY).
+- Persist allows choosing between many storage levels:
    - memory only
    - memory and disk
    - memory and disk ser
    - disk only
-- Use persist() to persist the data
-- Use unpersist() to unpersist the data
+- Use persist() to persist the data.
+- Use unpersist() to unpersist the data.
 
 ## What are the different storage levels?
 - Memory only
-    - stores data as deserialized objects
-    - may result in data loss, if partitions are recomputed
+    - Stores data as deserialized objects.
+    - May result in data loss if partitions are recomputed.
 - Memory and disk
     - If data doesn't fit in the memory, it spills it into the disk.
-    - May take long time to fetch data, because it is stored in the disk
+    - May take a long time to fetch data, because it is stored on the disk.
 - Memory and disk ser
 - Disk only
 - On heap
-    - memory allocated by the jvm
-    - managed by garbage collector
-    - provides faster access
-    - no need to manage storage
-- Off heap
-    - storage allocated outside the jvm
-    - may be used, if the user want control over how the data is stored
-    - on heap storage can be limited, therefore it is efficient to store large data in off heap storage
+    - Memory allocated by the JVM.
+    - Managed by a garbage collector.
+    - Provides faster access.
+    - No need to manage storage.
+- Off-heap
+    - Storage allocated outside the JVM.
+    - May be used, if the user wants control over how the data is stored.
+    - On-heap storage can be limited; it is efficient to store large data in off-heap storage.
 
-## What are the advantages of pyspark?
+## What are the advantages of PySpark?
 - In memory, distributed processing
 - Lightning fast
-- Real time data processing
+- Real-time data processing
 
-## Explain spark architecture.
+## Explain Spark architecture.
 ![alt text](https://sparkbyexamples.com/wp-content/uploads/2020/02/spark-cluster-overview.png?ezimgfmt=ng:webp/ngcb1)
 - Master-slave architecture
 - Master - driver, slave - workers
@@ -139,30 +139,30 @@ A job can mean a set of instructions/code (transformations) written in python/sc
 	- Yarn
 	- Kubernetes
 - Driver:
-    - Entry point of spark application
+    - Entry point of the Spark application
     - Runs on a dedicated node
     - Divides and assigns tasks to worker nodes.
 - Executors:
     - Runs the actual tasks
-    - Excutes tasks in parallel, stores data in memory
-    - Each executor runs in its jvm
-    - Has certain amount of cpu cores allocated to it
+    - Executes tasks in parallel, stores data in memory
+    - Each executor runs in its JVM
+    - Has a certain number of CPU cores allocated to it
 - A worker node can have multiple executors.
 
 ## What is shuffle and data locality?
-- Shuffle redistrivutes data accross partitions
+- Shuffle redistributes data across partitions
 - Occurs during aggregation or grouping
 - Involves data movement
 - Expensive process
 - Shuffle operations can be optimized by using data locality, meaning data is processed on the same node where it is stored.
 
-## What are the components of spark eco-system?
+## What are the components of the Spark ecosystem?
 - Spark SQL
 - Spark Streaming
 - Spark MLlib
 - GraphX
 
-## Which languages supports spark?
+## Which languages support Spark?
 - Python
 - R
 - Java
@@ -170,12 +170,12 @@ A job can mean a set of instructions/code (transformations) written in python/sc
 - Sql
 
 ## What is checkpointing?
-- Stores/persists intermediate rdds or dataframes to a reliable storage system.
+- Stores/persists intermediate RDDs or dataframes to a reliable storage system.
 - Fault tolerance
 - Helps to recover in case of failure.
 - Avoids recomputation of dataframes in case of failures.
-- Lineage dependency: spark maintains a lineage, which includes series of transformations
-- The reliable system can be: s3, hdfs etc. 
+- Lineage dependency: Spark maintains a lineage, which includes a series of transformations
+- The reliable system can be: S3, HDFS, etc. 
 - Checkpointing incurs additional I/O overhead and storage requirements, so it should be used judiciously and selectively for RDDs or DataFrames that are expensive to recompute or have long lineages.
 - Enable checkpointing: 
   1. sparkContext.setCheckpointDir()
@@ -184,12 +184,12 @@ A job can mean a set of instructions/code (transformations) written in python/sc
   4. checkpointing on dataframes: DataFrame.writeStream().option("checkpointLocation","<checkpoint_directory>").start()
 
 ## What is the difference between DAG and lineage?
-- DAG is a logical execution plan that represents the sequence of transformations and actions in a spark application
+- DAG is a logical execution plan that represents the sequence of transformations and actions in a Spark application
 - Lineage is the history or record of transformations applied to an RDD or dataframe.
 
 ## Explain Spark UI.
-- A spark job is divided into something called stages.
-- Each stage contains some set of tasks.
+- A Spark job is divided into something called stages.
+- Each stage contains a set of tasks.
 - Generally, stages are divided where there is shuffling of data.
 - Example:
    1. Adding data --> stage 1
@@ -197,25 +197,25 @@ A job can mean a set of instructions/code (transformations) written in python/sc
 - Spark Architecture
    1. Driver
    2. Worker nodes
-   3. Each worker nodes have executors or slots
+   3. Each worker node has executors or slots
    4. A worker node can have multiple executors
    5. A slot is nothing but a CPU.
-   6. Each of the component runs on a separate JVM.
+   6. Each of the components runs on a separate JVM.
 - A job represents a high-level unit of work triggered by an action operation.
-- A job is divided into stages based on data dependencies and presence of shuffle operations.
+- A job is divided into stages based on data dependencies and the presence of shuffle operations.
 - Stages are composed of tasks that can be executed in parallel, either without shuffling (narrow stages) or with data shuffling (wide stages).
 
-## List challenges in spark.
+## List challenges in Spark.
 1. **Spill**
-    - Spill occurs when data requires more memory than available and when the data exceeds memory, it gets spill on to the disk.
+    - Spill occurs when data requires more memory than available, and when the data exceeds memory, it gets spilled onto the disk.
     - Performance is reduced because I/O operations on disk are slower.
 2. **Shuffle**
-    - Redistributing data across partitions during groupBy, reduceByKey, join.
-    - Shuffle includes transfer of data over the network which can be a performance bottleneck.
+    - Redistributing data across partitions during groupBy, reduceByKey, and join.
+    - Shuffle includes transfer of data over the network, which can be a performance bottleneck.
 3. **Storage**
     - Poor storage management can lead to excessive memory usage, spilling to disk, or inefficient utilization of storage resources.
 4. **Serilization**
-    - Process of converting data into suitable format for storage or transmission.
+    - Process of converting data into a suitable format for storage or transmission.
     - Serialization can improve performance, memory usage, and network transfer efficiency.
 5. **Skew**
     - Refers to the imbalanced distribution across the partitions.
@@ -223,21 +223,21 @@ A job can mean a set of instructions/code (transformations) written in python/sc
     - Can impact performance
 - Solutions:
     - Optimizing data partitioning and repartitioning to reduce skewness
-    - Adjusting spark configurations related to memory management, shuffle behavior, serialization, and strage levels.
-    - Using broadcast joins, bucketing etc.
-    - Using techniques like caching, checkpointing etc.
+    - Adjusting spark configurations related to memory management, shuffle behavior, serialization, and storage levels.
+    - Using broadcast joins, bucketing, etc.
+    - Using techniques like caching, checkpointing, etc.
 
-## List some of the important spark configurations.
+## List some of the important Spark configurations.
 1. Spark driver and executor memory:
     - spark.driver.memory and spark.executor.memory
-    - Ensure sufficient memory to execute spark jobs.
+    - Ensure sufficient memory to execute Spark jobs.
 2. Number of executors and executor cores:
     - spark.executor.instances
     - spark.executor.cores
 3. Spark driver and executor memory overhead:
     - spark.driver.memoryOverhead and spark.executor.memoryOverhead
 4. Spark task parallelism:
-    - spark.default.parallelism, spark.sql.shuffle.partitions and spark.sql.files.maxPartitionBytes
+    - spark.default.parallelism, spark.sql.shuffle.partitions, and spark.sql.files.maxPartitionBytes
 5. Spark caching and storage levels:
     - spark.storage.memoryFraction, spark.storage.level
 6. Serialization:
@@ -247,10 +247,10 @@ A job can mean a set of instructions/code (transformations) written in python/sc
 
 ## Difference between repartition and coalesce.
 - Repartition shuffles data across the cluster.
-- Repartition can increase or  decrease number of partitions, involves a full shuffle, and ensures a balanced distribution.
-- Coalescing can only decrease the number of partitions, minimizes data movement.
+- Repartition can increase or  decrease the number of partitions, involves a full shuffle, and ensures a balanced distribution.
+- Coalescing can only decrease the number of partitions, minimizing data movement.
 
-## How the number of partitions are decided in spark?
+## How is the number of partitions decided in Spark?
 1. Input data source
 2. Default parallelism: spark.default.parallelism
 3. Transformation operations: repartition and coalesce
@@ -261,30 +261,30 @@ A job can mean a set of instructions/code (transformations) written in python/sc
     - spark.default.parallelism (default: Total no. of CPU cores)
     - spark.sql.files.maxPartitionBytes (default: 128 MB)
     - spark.sql.files.openCostInBytes (default: 4 MB)
-- Number of partition calculation:
+- Number of partitions calculation:
     - total_bytes = Sum of sizes of all data files + (No. of files * openCostInBytes)
     - bytesPerCore = total_bytes / default.parallelism
     - maxSplitBytes = Minimum(maxPartitionBytes, Maximum(bytesPerCore, openCostInBytes))
     - num_partitions = total_bytes / maxSplitBytes
 - Example​:
-    - 2 csv files of 62 MB each​
+    - 2 CSV files of 62 MB each​
     - total_bytes = (2 * 62 * 1024 * 1024) + (2 * 4 * 1024 * 1024) = 138412032​
     - bytesPerCore = 138412032 / 7 = 19773147​
     - maxSplitBytes = Minimum(134217728, Maximum(19,773,147, 4,194,304)) = 19773147​
     - num_partitions = 138412032 / 19773147 = 6.49
 
 ## Explain broadcast join.
-- Used when size of one dataset is smaller than the other.
+- Used when the size of one dataset is smaller than the other.
 - Used to optimize the join process.
 Steps:
-- One dataset, known as broadcast or small dataset is small enought to firt entirely in memory.
-- The other dataset, known as non-broadcast or large dataset is comparatively larger in size.
-- Smaller dataset is broadcasted or replicated to all worker nodes.
-- Each worker node performs the join locally by combining the local copy of small dataset with corresponding partition of the large dataset.
+- One dataset, known as the broadcast or small dataset, is small enough to fit entirely in memory.
+- The other dataset, known as the non-broadcast or large dataset, is comparatively larger in size.
+- A smaller dataset is broadcast or replicated to all worker nodes.
+- Each worker node performs the join locally by combining the local copy of the small dataset with the corresponding partition of the large dataset.
 - Results from each worker node are combined to produce the final result of the join operation.
 - Advantages:
    - Reduced data shuffling
-   - Local join excecution
+   - Local join execution
 
 ## Difference between bucketing and partitionBy.
 - Partitioning divides data into separate directories or files based on specific column values, while bucketing distributes data into fixed-size buckets based on a hash function applied to specific column(s).
@@ -324,7 +324,7 @@ Adaptive Query Execution (AQE) is a feature introduced in Apache Spark 3.0 to op
 
 Overall, the command launches the Spark interactive shell in client mode, connecting to a YARN cluster manager with specific configurations. It sets the memory and CPU core allocation for the executors and the driver program, disables dynamic allocation and adaptive query execution, and specifies 2 executors to be used for the application. The Spark shell will be able to interactively run Spark code and SQL queries using the specified resources and configurations.
 
-## What are some of the difficulties when working with csv files?
+## What are some of the difficulties when working with CSV files?
 
 - No defined schema
 - Nested data requires special handling 
@@ -352,12 +352,11 @@ Key features of ORC include:
 
 In summary, each of these formats has its own set of strengths, and the choice between Parquet, Avro, and ORC will depend on factors like the specific use case, data size, query patterns, and the tools or frameworks you are using in your big data processing pipeline.
 
-
 ## Why is MapReduce slow?
 Before Apache Spark, MapReduce already existed. But there are multiple problems with it. 
 
 ### Problem 1
-The main problem is that it writes every stage into HDFS storage which makes it super slow.  
+The main problem is that it writes every stage into HDFS storage, which makes it super slow.  
 
 Example:  
 
@@ -370,7 +369,7 @@ Step 2:
 ### Problem 2
 - Rigid programming model
 - Fixed steps - Map and Reduce
-- If your tasks require various tasks like filter, joins, aggregations, we'll need to break them into multiple Map Reduce steps.
+- If your tasks require various tasks like filters, joins, and aggregations, we'll need to break them into multiple MapReduce steps.
 
 ## How Spark resolved these problems?
 
@@ -383,30 +382,30 @@ Step 2:
 ## Spark Architecture
 - The cluster manager resides on the driver or master node.
 - Widely used cluster managers are YARN and Kubernetes.
-- In order to start the spark application, user needs to run a spark submit command along with the code and configurations.
-- This spark submit request will go the the cluster manager.
+- In order to start the Spark application, the user needs to run a Spark submit command along with the code and configurations.
+- This Spark submit request will go to the cluster manager.
 - The cluster manager will first create an application master container. It decides to create it on which worker node.
-- A container is an isolated environment within a node with fixed amount of CPUs and RAM. It is not allowed to use resources beyond what is allocated to it.
-- The application master container will start an application driver. Application driver is a JVM process. It's job is to execute the main method of the spark application code.
+- A container is an isolated environment within a node with a fixed amount of CPUs and RAM. It is not allowed to use resources beyond what is allocated to it.
+- The application master container will start an application driver. The application driver is a JVM process. Its job is to execute the main method of the Spark application code.
 <img width="648" height="475" alt="image" src="https://github.com/user-attachments/assets/99535166-642d-47f3-8f27-77fcb4b01b76" />
 
 - JVM doesn't understand Python or PySpark. So a PySpark driver will spin up. The PySpark driver's main method will call the application driver.
-- Spark core is written in Scala. To make it available for Python developers, it has a JAVA wrapper on top of it and in turn it has a python wrapper on top of it.
+- Spark Core is written in Scala. To make it available for Python developers, it has a JAVA wrapper on top of it, and in turn, it has a Python wrapper on top of it.
 <img width="274" height="108" alt="image" src="https://github.com/user-attachments/assets/73788c62-33a6-4742-a39d-69bca69de555" />
 
-- The application driver looks at the request and it goes the cluster manager to request for resources.
+- The application driver looks at the request, and it goes to the cluster manager to request resources.
 - Cluster manager gives the resources. For example, the request is for 3 executors, the cluster manager will randomly pick 3 workers and create executor containers.
-- After allocation, it hands over the details to the application driver. The cluster manager tells the location of the executors for example, worker node 1, 2 and 4.
+- After allocation, it hands over the details to the application driver. The cluster manager tells the location of the executors, for example, worker nodes 1, 2, and 4.
 - Application driver then schedules the tasks. The executors execute the tasks and report the results back to the driver.
-- If we create an UDF, then each executor container may also spin up a python process because UDF are created by user and not contained by default in spark.  
+- If we create a UDF, then each executor container may also spin up a Python process because UDFs are created by the user and not contained by default in Spark.  
 
 <img width="1323" height="777" alt="image" src="https://github.com/user-attachments/assets/5ca68a66-41cb-4319-bdc7-646831b0621e" />
 
 <img width="1295" height="967" alt="image" src="https://github.com/user-attachments/assets/e81ac5fd-b456-482b-8d1f-c1d3e07acb08" />
 
 ### Deployment modes
-- When the application driver runs on one of the worker node in the cluster, it is called as cluster mode.
-- When spark submit runs on user machine, then it is called as client mode.
+- When the application driver runs on one of the worker nodes in the cluster, it is called cluster mode.
+- When Spark Submit runs on a user's machine, it is called client mode.
 
 ## Transformations
 - Transformations are operations that produce a new dataset from an existing one.
@@ -438,13 +437,13 @@ SELECT name, age
 FROM employees  
 WHERE age > 30  
 
-- At this stage Spark just sees:
+- At this stage, Spark just sees:
 	- Read table employees
 	- Select name, age
 	- Apply filter age > 30
 
 - But it has not validated whether:
-	- employees table exists
+	- The employees table exists
 	- name and age columns are present
 
 2. Logical plan
@@ -529,7 +528,7 @@ Execution on Cluster
 
 ## Important concepts
 - **Job**
-- Created for every action like:
+- Created for every action, like:
 	- show()
 	- count()
 	- collect()
@@ -548,7 +547,7 @@ Execution on Cluster
 ## Spark code example
 <img width="1385" height="926" alt="image" src="https://github.com/user-attachments/assets/4a836a92-b31b-46ee-b8c8-4a535206ae20" />
 
-- If the code involves N shuffles/ wide transformations then there will be N+1 stages.
+- If the code involves N shuffles/ wide transformations, then there will be N+1 stages.
 
 ## Spark Executor Memory
 <img width="1410" height="783" alt="image" src="https://github.com/user-attachments/assets/48480717-057c-460f-9e95-7838d2b055ef" />
@@ -559,17 +558,17 @@ Execution on Cluster
   	- Overhead
 
 - **On-heap memory**
-	- Main memory JVM interacts with
+	- The main memory JVM interacts with
  	- Divided into 4 parts:
   		- Execution memory:
-    		- This is where joins, shuffles, sorting etc are executed.
+    		- This is where joins, shuffles, sorting, etc., are executed.
       	- Storage memory:
-        	-  Cached objects, broadcast variables etc are stored here.
+        	-  Cached objects, broadcast variables, etc., are stored here.
       	- User memory:
-      		- User defined data structures, variables etc are stored here.
+      		- User-defined data structures, variables, etc., are stored here.
       	 - Reserved memory:
       	 	- 300 MB
-      	  	- Spark keeps it for it's internal use
+      	  	- Spark keeps it for its internal use
       	   		- Internal metadata, Memory tracking, Error handling, Internal objects
 	- Execution memory and storage memory are together called unified memory.
  		- This is because both of these can borrow memory from each other.
@@ -585,7 +584,7 @@ Execution on Cluster
                   	- User memory = 4 GB - 300 MB = 3.8 GB
 
 - **Off-heap memory**
-	- It is disabled by default. Enabled using spark setting.
+	- It is disabled by default. Enabled using the Spark setting.
  	- Useful when processing large data.
   	- Used mainly to reduce:
   		- JVM Garbage Collection (GC)
